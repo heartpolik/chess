@@ -6,7 +6,7 @@ using namespace std;
 
 //inputs
 
-#define name "D:/desks.txt"
+#define name "D:/projects/qt_git/chess/desks.txt"
 
 #define w 8
 #define h 8
