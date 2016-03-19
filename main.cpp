@@ -1,17 +1,23 @@
 #include <iostream>
 #include <stdio.h>
 
-
 using namespace std;
 
 //inputs
-
 #define filename "d:/projects/clion/chess/desks.txt" //path of data file
+#define w 10 //width of board
+#define h 10 //height of board
 
-#define w 8 //width of board
-#define h 8 //height of board
-
-char desk[w][h];
+char desk[w][h]={   {'!','!','!','!','!','!','!','!','!','!'}
+                    ,{'!','!','!','!','!','!','!','!','!','!'}
+                    ,{'!','!','!','!','!','!','!','!','!','!'}
+                    ,{'!','!','!','!','!','!','!','!','!','!'}
+                    ,{'!','!','!','!','!','!','!','!','!','!'}
+                    ,{'!','!','!','!','!','!','!','!','!','!'}
+                    ,{'!','!','!','!','!','!','!','!','!','!'}
+                    ,{'!','!','!','!','!','!','!','!','!','!'}
+                    ,{'!','!','!','!','!','!','!','!','!','!'}
+                    ,{'!','!','!','!','!','!','!','!','!','!'}};
 bool endFlag;
 struct king
 {
@@ -23,7 +29,6 @@ struct king
 king black;
 king white;
 
-
 void readBoard()
 {
     static FILE *task = fopen(filename,"r");
@@ -32,9 +37,9 @@ void readBoard()
 
     endFlag=true;
 
-    for (int i=0;i<h;++i)
+    for (int i=1;i<h-1;++i)
     {
-        for (int j=0;j<w;++j)
+        for (int j=1;j<w-1;++j)
         {
             fscanf(task,"%c",&tmp);
 
@@ -48,12 +53,11 @@ void readBoard()
 
 }
 
-
 void findTheKing()
 {
-    for (int i=0;i<h;++i)
+    for (int i=1;i<h-1;++i)
     {
-        for (int j=0;j<w;++j)
+        for (int j=1;j<w-1;++j)
         {
             if (desk[j][i]=='K')
             {
@@ -92,101 +96,107 @@ int analyze(king k)
         pawn='P';
     };
 
-    //---horse---
-    int pos[8][2]={ {-2,1}
-                    ,{-2,-1}
-                    ,{2,1}
-                    ,{2,-1}
-                    ,{-1,2}
-                    ,{-1,-2}
-                    ,{1,2}
-                    ,{1,-2}
-                };
+//---horse---
+    int pos[8][2]={{-2,1},{-2,-1},{2,1},{2,-1},{-1,2},{-1,-2},{1,2},{1,-2}};
+
     for (int i=0;i<8;++i)
     {
-        if(k.x+pos[i][1]>=0 && k.y+pos[i][2]>=0 && k.x+pos[i][1]<w && k.y+pos[i][2]<h)
+        if( k.x + pos[ i ][ 1 ] > 0 && k.y + pos[ i ][ 2 ] > 0 && k.x + pos[ i ][ 1 ] < w - 1 && k.y + pos[ i ][ 2 ] < h - 1)
         {
-            if (desk[k.x+pos[i][1]][k.y+pos[i][2]]==horse)
+            if (desk[ k.x + pos[ i ][ 1 ] ] [ k.y + pos[ i ][ 2 ] ] == horse)
             {
                 flag=1;
-                break;
-            }
-        }
-
+            };
+        };
+        if(flag) break;
     };
 
+//---rook&queen
+    int diagonalPattern [4][2]={{-1,-1},{1,-1},{-1,1},{1,1}};
 
-    //---rook&queen
-
-    for (int i=0;i<8;++i)
+    for (int i=0;i<4;++i)
     {
-        if (desk[k.x][i]==rook)
+        int j=1;
+        while(1)
         {
-            flag=1;
+            char cell = desk[ k.x + j * diagonalPattern[ i ][ 0 ] ] [ k.y + j * diagonalPattern[ i ][ 1 ] ];
+            if (cell == '!')
+            {
+                break;
+            };
+            if (cell == '.')
+            {
+                ++j;
+                continue;
+            };
+            if (cell == queen)
+            {
+                flag = 1;
+                break;
+            };
+            if (cell == bishop)
+            {
+                flag = 1;
+                break;
+            };
             break;
-        }
-        if (desk[k.x][i]==queen)
-        {
-            flag=1;
-            break;
-        }
-        if (desk[i][k.y]==rook)
-        {
-            flag=1;
-            break;
-        }
-        if (desk[i][k.y]==queen)
-        {
-            flag=1;
-            break;
-        }
-    }
+        };
+        if (flag) break;
+    };
 
-   // ---bishop&queen
+// ---bishop&queen
+    int linePattern [4][2]={{-1,0},{0,-1},{0,1},{1,0}};
 
-   for (int i=-7;i<7;++i)
+    for (int i = 0 ; i < 4 ; ++i )
     {
-        if (k.x+i>=0 && k.x+i<8 && k.y+i>=0 && k.y+1<8)
-        {
-            if(desk[k.x+i][k.y+i]==bishop || desk[k.x+i][k.y+i]==queen)
+            int j=1;
+            while(1)
             {
-                flag=1;
-                break;
-            }
-        }
-        if (k.x-i>=0 && k.x-i<8 && k.y-i>=0 && k.y-1<8)
-        {
-            if(desk[k.x-i][k.y-i]==bishop || desk[k.x-i][k.y-i]==queen)
-            {
-                flag=1;
-                break;
-            }
-        }
-    }
+                char cell = desk[ k.x + j * linePattern[ i ][ 0 ] ] [ k.y + j * linePattern[ i ][ 1 ] ];
 
-   // ---pawn
+                if (cell == '!') {
+                    break;
+                };
+                if (cell == '.') {
+                    ++j;
+                    continue;
+                };
+                if (cell == queen) {
+                    flag = 1;
+                    break;
+                };
+                if (cell == rook) {
+                    flag = 1;
+                    break;
+                };
+                break;
+            };
+            if (flag) break;
+    };
+
+// ---pawn
     int dir = 1,
-        b=7;
+        b = 8;
 
-    if (k.color=='w')
+    if ( k.color == 'w')
     {
-        b=0;
-        dir= -1;
-    }
+        b = 1;
+        dir = -1;
+    };
 
-    if(k.x+1<8 && k.x-1>=0 && k.y!=b)
+    if( k.x + 1 < 8 && k.x - 1 > 0 && k.y != b)
     {
         if (desk[k.x + 1][k.y + dir] == pawn || desk[k.x - 1][k.y + dir] == pawn) flag = 1;
-    }
+    };
 
     return  flag;
-
 }
 
 int main()
 {
     int i=1;
 
+    printf("%c",desk[0][5]);
     while (1)
     {
         readBoard();
@@ -203,14 +213,12 @@ int main()
             printf("Game #%i: white king is in check.\n",i);
         }
         else if(analyze(black))
-        {
-            printf("Game #%i: black king is in check.\n",i);
-        }
+            {
+                printf("Game #%i: black king is in check.\n",i);
+            }
         else printf("Game #%i: no king is in check.\n",i);
-
         ++i;
     }
-
     getchar();
     return 0;
 }
